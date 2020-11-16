@@ -10,6 +10,10 @@ import (
     "go.mongodb.org/mongo-driver/mongo"
 )
 
+type DBAccess struct {
+    URI string `json:"uri"`
+}
+
 type User struct {
     GUID uint `json:"guid"`
 }
@@ -19,8 +23,20 @@ func createBcrypt(data string) ([]byte, error) {
 }
 
 func main() {
-    var err error
-    dbClient, dbContext, err = initDB("mongodb://localhost:27017")
+    dbAccessString, err := ioutil.ReadFile("./dbaccess.json")
+    if (err != nil) {
+        fmt.Println(err)
+        return
+    }
+
+    var dbAccess DBAccess
+    err = json.Unmarshal(dbAccessString, &dbAccess)
+    if (err != nil) {
+        fmt.Println(err)
+        return
+    }
+
+    dbClient, dbContext, err = initDB(dbAccess.URI)
     if (err != nil) {
         fmt.Println(err)
         return
@@ -41,7 +57,13 @@ func main() {
 }
 
 func mainPage(w http.ResponseWriter, r *http.Request) {
-    dat, _ := ioutil.ReadFile("./index.html")
+    dat, err := ioutil.ReadFile("./index.html")
+    if (err != nil) {
+        fmt.Println(err)
+        w.WriteHeader(http.StatusInternalServerError)
+        return
+    }
+
     fmt.Fprint(w, string(dat))
 }
 

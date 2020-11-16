@@ -13,7 +13,7 @@ var dbClient *mongo.Client
 var dbContext context.Context
 
 func initDB(uri string) (*mongo.Client, context.Context, error) {
-    client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+    client, err := mongo.NewClient(options.Client().ApplyURI(uri))
     if err != nil {
         return nil, nil, err
     }
