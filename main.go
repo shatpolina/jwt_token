@@ -1,6 +1,7 @@
 package main
 
 import (
+    "os"
     "fmt"
     "net/http"
     "io/ioutil"
@@ -23,6 +24,12 @@ func createBcrypt(data string) ([]byte, error) {
 }
 
 func main() {
+    port := os.Getenv("PORT")
+    if (port == "") {
+        fmt.Println("$PORT must be set")
+        return
+    }
+
     dbAccessString, err := ioutil.ReadFile("./dbaccess.json")
     if (err != nil) {
         fmt.Println(err)
@@ -53,7 +60,7 @@ func main() {
     r.HandleFunc("/tokenDelete", tokenDelete).Methods("DELETE")
     r.HandleFunc("/tokenDeleteAll", tokenDeleteAll).Methods("DELETE")
 
-    http.ListenAndServe(":3000", r)
+    http.ListenAndServe(":" + port, r)
 }
 
 func mainPage(w http.ResponseWriter, r *http.Request) {
