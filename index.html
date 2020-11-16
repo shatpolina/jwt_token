@@ -1,0 +1,153 @@
+<html>
+    <head>
+        <style>
+            td {
+                padding: 3px;
+                border: 1px solid black;
+                max-width: 350px;
+                word-wrap: break-word;
+            }
+            pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+            button, input {
+                width: 100%;
+            }
+        </style>
+        <script>
+            function request(requestType, url, callback, postData) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(requestType, url, true);
+                xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+                xhr.onload = function () {
+                    if (xhr.readyState == 4) {
+                        callback(xhr.status, xhr.responseText)
+                    }
+                }
+                xhr.send(postData ? JSON.stringify(postData) : null);
+            }
+
+            function getData(fieldId) {
+                return document.getElementById(fieldId).value;
+            }
+
+            function setData(fieldId, code, data) {
+                doc = document.getElementById(fieldId)
+                if (data.length > 0 && code == 200) {
+                    doc.innerText = JSON.stringify(JSON.parse(data), null, 2);
+                } else {
+                    doc.innerText = "Code " + code;
+                }
+            }
+
+            function tokenCreate() {
+                return {
+                    guid: parseInt(getData("in1"))
+                }
+            }
+
+            function tokenRefresh() {
+                return {
+                    tokens: {
+                        access: getData("in2_1"),
+                        refresh: getData("in2_2")
+                    }
+                }
+            }
+
+            function tokenDelete() {
+                return {
+                    tokens: {
+                        access: getData("in3_1"),
+                        refresh: getData("in3_2")
+                    }
+                }
+            }
+
+            function tokenDeleteAll() {
+                return {
+                    token: getData("in4")
+                }
+            }
+        </script>
+    </head>
+
+    <body>
+        <table>
+            <tr>
+                <td colspan="2"><p>Create access-refresh pair</p></td>
+            </tr>
+            <tr>
+                <td><p>GUID</p></td>
+                <td><input id="in1"></input></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button onclick="request('PUT', '/tokenCreate', (code, data) => setData('out1', code, data), tokenCreate())">Send</button></td>
+            </tr>
+            <tr>
+                <td><p>Result</p></td>
+                <td><pre id="out1"></p></td>
+            </tr>
+        </table>
+        <br/>
+        <table>
+            <tr>
+                <td colspan="2"><p>Refresh token</p></td>
+            </tr>
+            <tr>
+                <td><p>Access token</p></td>
+                <td><input id="in2_1"></input></td>
+            </tr>
+            <tr>
+                <td><p>Refresh token</p></td>
+                <td><input id="in2_2"></input></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button onclick="request('POST', '/tokenRefresh', (code, data) => setData('out2', code, data), tokenRefresh())">Send</button></td>
+            </tr>
+            <tr>
+                <td><p>Result</p></td>
+                <td><pre id="out2"></p></td>
+            </tr>
+        </table>
+        <br/>
+        <table>
+            <tr>
+                <td colspan="2"><p>Delete refresh token</p></td>
+            </tr>
+            <tr>
+                <td><p>Access token</p></td>
+                <td><input id="in3_1"></input></td>
+            </tr>
+            <tr>
+                <td><p>Refresh token</p></td>
+                <td><input id="in3_2"></input></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button onclick="request('DELETE', '/tokenDelete', (code, data) => setData('out3', code, data), tokenDelete())">Send</button></td>
+            </tr>
+            <tr>
+                <td><p>Result</p></td>
+                <td><pre id="out3"></p></td>
+            </tr>
+        </table>
+        <br/>
+        <table>
+            <tr>
+                <td colspan="2"><p>Delete all refresh tokens</p></td>
+            </tr>
+            <tr>
+                <td><p>Access token</p></td>
+                <td><input id="in4"></input></td>
+            </tr>
+            <tr>
+                <td colspan="2"><button onclick="request('DELETE', '/tokenDeleteAll', (code, data) => setData('out4', code, data), tokenDeleteAll())">Send</button></td>
+            </tr>
+            <tr>
+                <td><p>Result</p></td>
+                <td><pre id="out4"></p></td>
+            </tr>
+        </table>
+    </body>
+</html>
